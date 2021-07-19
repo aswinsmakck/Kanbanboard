@@ -117,6 +117,191 @@ export default class BoardLists extends React.Component{
 
     }
 
+    listNameChange(listName, evt) {
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                list.listNameTextBoxVal = evt.target.value;
+            }
+            
+            return list;
+        })
+        console.log("lists",lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+    }
+
+    listNameSave(listName, evt){ 
+        let needLSSave = false;
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                console.log("in", ('listNameTextBoxVal' in list))
+                console.log("in", (list.listNameTextBoxVal.trim() !== ""))
+                if(('listNameTextBoxVal' in list) && list.listNameTextBoxVal.trim() !== "")
+                {
+                    needLSSave = true;
+                    list.name = list.listNameTextBoxVal;
+                }
+                list.listNameTextBoxVal = "";
+                list.toggleTextBox = false;
+            }
+            
+            return list;
+        })
+        console.log("lists on blur",lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+
+
+        if(!needLSSave) return;
+        
+        let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
+        console.log(localDB);
+        
+        if(localDB.length === 0) return;
+
+        let ModifiedLocalDB = localDB.map((boardLS)=> {
+            let retVal = boardLS;
+            if(boardLS.name === this.props.match.params.id){
+                retVal = board
+            }  
+            return retVal
+        })
+
+        localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
+    }
+
+    toggleListNameEdit(listName, evt){
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                list.toggleTextBox = true;
+            }
+            
+            return list;
+        })
+        console.log("lists",lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+    }
+
+    removeCard(listName, cardName, evt){
+
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                let cards = list.cards;
+                cards.splice(cards.findIndex(card => card.title === cardName) , 1)
+            }
+            
+            return list;
+        })
+
+        console.log("lists",lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+
+
+        let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
+        console.log(localDB);
+        
+        if(localDB.length === 0) return;
+
+        let ModifiedLocalDB = localDB.map((boardLS)=> {
+            let retVal = boardLS;
+            if(boardLS.name === this.props.match.params.id){
+                retVal = board
+            }  
+            return retVal
+        })
+
+        localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
+    }
+
+    cardNameEdit(listName, cardName, evt){
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                list.cards.map(card => {
+                    if(card.title === cardName){
+                        card.textBoxVal = evt.target.value;
+                    }
+                    return card;
+                })
+            }
+            
+            return list;
+        })
+        console.log("lists card edited ",lists)
+        let board = {...this.state.board, lists}
+        console.log(board);
+        this.setState({board : board})
+    }
+
+    saveEditedCardName(listName, cardName, evt){
+        let needLSSave = false;
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                list.cards.map(card => {
+                    if(card.title === cardName){
+                        if(('textBoxVal' in card) && card.textBoxVal.trim() !== "")
+                        {
+                            needLSSave = true;
+                            card.title = card.textBoxVal;
+                        }
+
+                        card.textBoxVal = "";
+                        card.toggleTextBox = false;
+                    }
+                    return card;
+                })
+            }
+            
+            return list;
+        })
+
+        console.log("saving... card name", lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+
+        if(!needLSSave) return;
+
+        let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
+        console.log(localDB);
+        
+        if(localDB.length === 0) return;
+
+        let ModifiedLocalDB = localDB.map((boardLS)=> {
+            let retVal = boardLS;
+            if(boardLS.name === this.props.match.params.id){
+                retVal = board
+            }  
+            return retVal
+        })
+
+        localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
+    }
+
+    toggleCardNameEdit(listName, cardName, evt){
+        let lists = this.state.board.lists.map((list) => {
+            if(list.name === listName){
+                list.cards.map(card => {
+                    if(card.title === cardName){
+                        card.toggleTextBox = true;
+                    }
+                    return card;
+                })
+            }
+            
+            return list;
+        })
+        console.log("lists toggle ",lists)
+        let board = {...this.state.board, lists}
+        console.log(board)
+        this.setState({board : board})
+    }
+
     renderExistingLists (board){
         console.log(board)
         let lists = board.lists;
@@ -133,7 +318,20 @@ export default class BoardLists extends React.Component{
                             {
                                 this.state.board.lists.map( (list, index) => {
                                     return (
-                                        <BoardItem key={index} list={list} onAddCard={this.addCardtoListHandler.bind(this,list.name)} onChange ={this.changeCardTextBoxValHandler.bind(this,list.name)} closeForm={this.closeForm.bind(this,list.name)} onClick={this.showAddNewCardForm.bind(this,list.name)} />
+                                        <BoardItem 
+                                        key={index} 
+                                        list={list}
+                                        onToggleEdit={this.toggleListNameEdit.bind(this,list.name)} 
+                                        onListNameEdit={this.listNameChange.bind(this,list.name)}
+                                        onListNameSave={this.listNameSave.bind(this,list.name)}
+                                        onAddCard={this.addCardtoListHandler.bind(this,list.name)} 
+                                        onChange ={this.changeCardTextBoxValHandler.bind(this,list.name)} 
+                                        closeForm={this.closeForm.bind(this,list.name)} 
+                                        onClick={this.showAddNewCardForm.bind(this,list.name)}
+                                        onRemoveCard = {this.removeCard.bind(this,list.name)}
+                                        onCardNameEdit = {this.cardNameEdit.bind(this, list.name)} 
+                                        onToggleCardNameEdit={this.toggleCardNameEdit.bind(this,list.name)} 
+                                        onSaveEditedCardName={this.saveEditedCardName.bind(this, list.name)} />
                                     )
                                     
                                 })

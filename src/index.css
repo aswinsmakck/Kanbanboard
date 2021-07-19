@@ -144,10 +144,27 @@ code {
 }
 
 .Add-Card:hover{
-  background-color: rgba(0, 0, 0, 0.24);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .Add-Card:active {
   transform: scale(0.98);
   box-shadow: 3px 2px 22px 1px rgba(75, 87, 21, 0.24);
+}
+
+.card{
+    background: rgb(190, 210, 237);
+    border-radius: 5px;
+    padding: 3px 8px;
+    box-shadow: 3px 4px 4px rgb(0 0 0 / 70%);
+    cursor:pointer;
+}
+
+.card + .card{
+  margin-top : 8px;
+}
+
+.card-details{
+  margin :0;
+  font-weight: 400;
 }
