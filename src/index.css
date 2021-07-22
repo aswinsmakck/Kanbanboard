@@ -168,3 +168,20 @@ code {
   margin :0;
   font-weight: 400;
 }
+
+.card-description{
+  display:flex;
+  padding : 0 15px;
+  cursor : pointer;
+  background-color : #CCC;
+  align-items:center;
+  border-radius : 8px;
+  height : 75px;
+}
+
+.card-edit-desc{
+  resize : none;
+  height : 100px;
+  border : 2px solid rgb(77, 154, 226);
+  width : 100%;
+}
