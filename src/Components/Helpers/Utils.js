@@ -6,15 +6,22 @@ const Utils = {
     },
 
     modalCloseHandler : function(){
-
-        this.setState({...this.state, textbox : {NewBoard : ""}, Modal : { show : false, content : null}});
+        console.log(this);
+        this.setState({...this.state, textBoxVal:"",boardItemTextBoxVal:"", Modal : { show : false}});
     },
     changeTextBoxValHandler : function (evt){
-        console.log(evt)
+        console.log(this)
         console.log(evt.target)
         console.log(evt.target.value)
         let textBoxVal = evt.target.value;
         this.setState({...this.state, textBoxVal : textBoxVal})
+    },
+    changeboardItemTextBoxValHandler : function (evt){
+        console.log(evt)
+        console.log(evt.target)
+        console.log(evt.target.value)
+        let textBoxVal = evt.target.value;
+        this.setState({...this.state, boardItemTextBoxVal : textBoxVal})
     },
     test1 : function(){
         Utils.test2()
