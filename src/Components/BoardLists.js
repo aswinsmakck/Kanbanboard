@@ -5,24 +5,51 @@ import ModalWindow from './UI/ModalWindow'
 import BoardItem from './BoardItem'
 import Row from './UI/Row'
 import Column from './UI/Column'
-import _ from 'lodash'
-import { withRouter } from 'react-router-dom'
+
 
 class BoardLists extends React.Component{
 
-    shouldComponentUpdate(nextProps, nextState){
+    constructor(props){
+        super(props);
+        this.state = {
+            Modal : {
+                show : false,
+            },
+            boardItemTextBoxVal : "",
+        };
+    }
+
+    modalCloseHandler(){
+        console.log(this);
+        this.setState({...this.state, boardItemTextBoxVal:"", Modal : { show : false}});
+    }
+
+    showModal(evt) {
+        let requiredStateModal = true
+        this.setState({...this.state, Modal : {...this.state.Modal, show : requiredStateModal}});
+    }
+
+    changeboardItemTextBoxValHandler(evt){
+        let textBoxVal = evt.target.value;
+        this.setState({...this.state, boardItemTextBoxVal : textBoxVal})
+    }
+
+    addBoardItemHandler(evt){
+        if(this.state.boardItemTextBoxVal.trim() === "") return;
+        this.props.onAddBoardItemClickHandler(this.state.boardItemTextBoxVal, this.props.board,evt);
+        this.setState({
+            boardItemTextBoxVal : "",
+            Modal : { show : false},
+        })
+    }
+
+    /*shouldComponentUpdate(nextProps, nextState){
         console.log("should component update start in board lists")
         console.log(nextProps.board)
         console.log(this.props.board)
         console.log(!_.isEqual(this.props.board, nextProps.board));
-        return !_.isEqual(this.props.board, nextProps.board) || this.props.Modal.show !== nextProps.Modal.show || this.props.showCardModalPopup !== nextProps.showCardModalPopup;
-    }
-
-    componentDidUpdate(prevProps, prevState){
-        console.log("------in comp did update----------")
-        console.log(prevProps)
-        console.log(prevState)
-    }
+        return !_.isEqual(this.props.board, nextProps.board) || _.isEqual(this.state,nextState) || this.props.showCardModalPopup !== nextProps.showCardModalPopup;
+    }*/
 
     renderExistingLists (board){
         console.log(board)
@@ -42,19 +69,15 @@ class BoardLists extends React.Component{
                                     return (
                                         <BoardItem
                                         board={board} 
+                                        showCardModalPopup = {this.props.showCardModalPopup}
+                                        card = {this.props.card}
                                         key={index} 
                                         list={list}
-                                        onToggleEdit={(listId, evt) => this.props.onToggleEdit(board,listId,evt) } 
-                                        onListNameEdit={(listId, evt) => this.props.onListNameEdit(board,listId,evt)}
-                                        onListNameSave={(listId, evt) => this.props.onListNameSave(board,listId,evt)}
-                                        onAddCard={(listId, evt) => this.props.onAddCard(board,listId,evt)} 
-                                        onChange ={(listId, evt) => this.props.onChange(board,listId,evt)} 
-                                        closeForm={(listId,evt) => this.props.closeForm(board,listId,evt)} 
-                                        onClick={(listId,evt) => this.props.onClick(board,listId,evt)}
-                                        onRemoveCard = {(listId,cardId,evt) => this.props.onRemoveCard(board,listId,cardId,evt)}
-                                        onCardNameEdit = {(listId,cardId,evt) => this.props.onCardNameEdit(board,listId,cardId,evt)} 
-                                        onToggleCardNameEdit={(listId,cardId,evt) => this.props.onToggleCardNameEdit(board,listId,cardId,evt)} 
-                                        onSaveEditedCardName={(listId,cardId,evt) => this.props.onSaveEditedCardName(board,listId,cardId,evt)} />
+                                        onSaveCardDesc ={this.props.onSaveCardDesc}
+                                        onListNameSave={(editedListName, listId, evt) => this.props.onListNameSave(editedListName, board,listId,evt)}
+                                        onAddCard={(cardName,listId, evt) => this.props.onAddCard(cardName,board,listId,evt)} 
+                                        onRemoveCard = {(listId,cardId,evt) => this.props.onRemoveCard(board,listId,cardId,evt)} 
+                                        onSaveEditedCardName={(editedCardName,listId,cardId,evt) => this.props.onSaveEditedCardName(editedCardName,board,listId,cardId,evt)} />
                                     )
                                     
                                 })
@@ -71,8 +94,8 @@ class BoardLists extends React.Component{
     }
 
     render(){
-        console.log(this.props)
-        let Modal = this.props.Modal
+
+        let Modal = this.state.Modal
 
         return (
             <Section>
@@ -81,37 +104,16 @@ class BoardLists extends React.Component{
                         {this.renderExistingLists(this.props.board)}
                         {
                             Modal.show && 
-                            <ModalWindow modalHeader="Add New List" onClose={this.props.onModalClose}>
+                            <ModalWindow modalHeader="Add New List" onClose={this.modalCloseHandler.bind(this)}>
                                 <div style={{alignSelf:"center"}}>
-                                    <input type="text" className="textbox" value={this.props.boardItemTextBoxVal} onChange={this.props.onChangeListName} />
-                                    <Button styleName="add-new-board" onClick={(evt)=>this.props.onAddBoardItemClickHandler(this.props.board,evt)} style={{ margin: "0 20px"}}> Add </Button>
+                                    <input type="text" className="textbox" value={this.state.boardItemTextBoxVal} onChange={this.changeboardItemTextBoxValHandler.bind(this)} />
+                                    <Button styleName="add-new-board" onClick={this.addBoardItemHandler.bind(this)} style={{ margin: "0 20px"}}> Add </Button>
                                 </div>
                             </ModalWindow>
                         }
-                        <Button styleName="add-new-board" onClick={this.props.onShowModal}>
+                        <Button styleName="add-new-board" onClick={this.showModal.bind(this)}>
                             Add New List
                         </Button>
-                        {
-                            this.props.showCardModalPopup &&
-                            <ModalWindow modalHeader="Card Details" onClose={this.props.history.goBack}>
-                                <div style={{alignSelf:"center", width:"100%"}}>
-                                    <h1>Card - {this.props.card.title}</h1>
-                                    <h4>Description</h4>
-                                    { this.props.card.editDescription ?
-                                        <div>
-                                            <textarea className="card-edit-desc" onChange={(evt)=>this.props.onCardDescChange(this.props.board.id,this.props.list.id,this.props.card.id,evt)} value={this.props.card.textArea ? this.props.card.textArea : ""} />
-
-                                            <div style={{display:"flex"}}>
-                                                <Button styleName="add-new-board" onClick={(evt) => this.props.onSaveCardDesc(this.props.board.id,this.props.list.id,this.props.card.id,evt)} style={{margin : "10px 20px 0 0"}}> Save </Button>
-                                                <span onClick={(evt)=>this.props.onToggleCardDescriptionEdit(this.props.board.id,this.props.list.id,this.props.card.id,evt)} style={{alignSelf : "center"}} className="close-button">&times;</span>
-                                            </div>
-                                        </div>
-                                        :
-                                        <div className="card-description" onClick={(evt)=>this.props.onToggleCardDescriptionEdit(this.props.board.id,this.props.list.id,this.props.card.id,evt)} >{this.props.card.desc && this.props.card.desc !== "" ? this.props.card.desc : "Add detailed description..."}</div>
-                                    }
-                                </div>
-                            </ModalWindow>
-                        }
                     </Column>
                 </Row>
             </Section>
@@ -120,4 +122,4 @@ class BoardLists extends React.Component{
 }
 
 
-export default withRouter(BoardLists);
+export default BoardLists;
