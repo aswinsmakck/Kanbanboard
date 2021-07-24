@@ -14,9 +14,7 @@ class App extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-        
-        boards : [],
-        needStorageSave : false                   
+        boards : [],            
     };
   }
 
@@ -26,7 +24,7 @@ class App extends React.Component {
         console.log(prevState)
         console.log(this.state)
         console.log(_.isEqual(this.state, prevState))
-        if(this.state.needStorageSave){
+        if(!_.isEqual(this.state, prevState)){
             let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
             console.log(localDB);
 
@@ -34,7 +32,6 @@ class App extends React.Component {
             console.log(ModifiedLocalDB);
             localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
             console.log(JSON.parse(localStorage.getItem("boards") || "[]"))
-            this.setState({needStorageSave : false})
         }
     }
 
@@ -84,7 +81,7 @@ addCardtoListHandler(cardName,_board,listId,evt){
     })
     
     boards[boardIndex] = {...boards[boardIndex], lists:lists}
-    this.setState({boards : boards,needStorageSave : true})
+    this.setState({boards : boards})
 
 }
 
@@ -101,7 +98,7 @@ listNameSave(editedListName, _board,listId, evt){
     })
     boards[boardIndex] = {...boards[boardIndex], lists:lists}
 
-    this.setState({boards : boards,needStorageSave : true})
+    this.setState({boards : boards})
     
 }
 
@@ -121,7 +118,7 @@ removeCard(_board, listId, cardId, evt){
     console.log("lists",lists)
     
     boards[boardIndex] = {...boards[boardIndex], lists:lists}
-    this.setState({boards : boards,needStorageSave : true})
+    this.setState({boards : boards})
 
 }
 
@@ -144,7 +141,7 @@ saveEditedCardName(editedCardName, _board, listId, cardId, evt){
 
     boards[boardIndex] = {...boards[boardIndex], lists:lists}
 
-    this.setState({boards : boards,needStorageSave : true})
+    this.setState({boards : boards})
 
 }
 
@@ -152,9 +149,7 @@ saveEditedCardName(editedCardName, _board, listId, cardId, evt){
 
       let id = nanoid();
       if(boardName.trim() === "") return;
-      this.setState({boards : [...this.state.boards, {id : id,name: boardName, lists : []}],
-          needStorageSave : true,
-      })
+      this.setState({boards : [...this.state.boards, {id : id,name: boardName, lists : []}],})
 
   }
 
@@ -177,9 +172,7 @@ saveEditedCardName(editedCardName, _board, listId, cardId, evt){
 
     boards[boardIndex] = {...boards[boardIndex], lists : lists}
 
-    this.setState({boards : boards,
-        needStorageSave : true,
-    })
+    this.setState({boards : boards,})
     
   }
 
@@ -197,7 +190,7 @@ saveEditedCardName(editedCardName, _board, listId, cardId, evt){
     console.log("lists in card modal",lists)
     boards[boardIndex] = {...boards[boardIndex], lists:lists}
 
-    this.setState({boards : boards,needStorageSave : true})
+    this.setState({boards : boards})
 
   }
 
